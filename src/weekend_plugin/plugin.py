@@ -114,6 +114,7 @@ class WeekendPlugin:
         adj_topic = self.weekend_topic(user_topic)
 
         if self.context.channels[channel].topic != adj_topic:
+            self.context.channels[channel].topic = adj_topic
             self.context.topic(channel, adj_topic)
 
     def parse_user_topic(self, raw_topic):
