@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+
+import logging
 import re
 
 from irc3.plugins.command import command
@@ -26,6 +28,8 @@ class WeekendPlugin:
 
         # registry of +o modes {"channel": True/False, ...}
         self.ops = defaultdict(bool)
+
+        self.log = logging.getLogger("irc3")
 
     def connection_lost(self):
         """
@@ -80,13 +84,16 @@ class WeekendPlugin:
 
         if not self.ops.get(target) and my_mode == ("+", "o"):
             self.ops[target] = True
-            self.set_weekend_topic(target, self.context.channels[target].topic)
+            self.log.info("Got OP on {}".format(target))
 
             if self.config.get("enable_cheer_for_op"):
                 return self.cheer_for_op(target)
 
+            self.set_weekend_topic(target, self.context.channels[target].topic)
+
         elif target in self.ops and my_mode == ("-", "o"):
             self.ops[target] = False
+            self.log.info("OP lost on {}".format(target))
 
     def cheer_for_op(self, target):
         """
@@ -154,15 +161,21 @@ class WeekendPlugin:
         """
         nick = IrcString(mask).nick
 
+        self.log.info("Topic command: {mask}, {target}, {args}".format(
+            mask=mask, target=target, args=args)
+        )
+
         # Someone set the topic. Check if they are permitted to do so.
         if nick in self.context.channels[target].modes["@"]:
-            if self.ops[target]:
+            if self.context.nick in self.context.channels[target].modes["@"]:
                 self.set_weekend_topic(target, " ".join(args["<topic>"]))
+                self.log.info("Topic command succeeded")
             else:
                 self.context.privmsg(
                     nick,
                     "I can't set a topic unless I have '+o' mode on {}.".format(target)
                 )
+                self.log.info("Topic command refused (no op)")
         else:
             self.context.privmsg(
                 nick,
