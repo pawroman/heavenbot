@@ -142,7 +142,7 @@ class WeekendPlugin:
 
         fmt_params = dict(
             progress=int(round(progress * 100)),
-            progressbar=make_progressbar(progress),
+            progressbar=make_progressbar(abs(progress)),
             user_topic=user_topic,
         )
 
@@ -196,7 +196,7 @@ class WeekendPlugin:
                    .format(duration, abs(progress) * 100))
         else:
             yield ("{} remaining until weekend... {:.2f}% {}"
-                   .format(duration, progress * 100, make_progressbar(progress, 20)))
+                   .format(duration, abs(progress) * 100, make_progressbar(progress, 20)))
 
     # TODO better cron / periodic updates (+ config)
 
