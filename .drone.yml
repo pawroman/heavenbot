@@ -11,11 +11,18 @@ steps:
     - "echo arch: $(uname -m)"
     - pip install -r requirements.txt
     - pip install -r requirements-test.txt
-    - pytest -v --cov
+    - pytest -v --cov --cov-report=term --cov-report=xml
   when:
     event:
       - push
       - pull_request
+- name: coverage
+  image: plugins/codecov
+  settings:
+    token:
+      from-secret: codecov-token
+    files:
+     - coverage.xml
 
 ---
 
@@ -32,7 +39,7 @@ steps:
     - "echo arch: $(uname -m)"
     - pip install -r requirements.txt
     - pip install -r requirements-test.txt
-    - pytest -v --cov
+    - pytest -v
   when:
     event:
       - push
@@ -53,7 +60,7 @@ steps:
     - "echo arch: $(uname -m)"
     - pip install -r requirements.txt
     - pip install -r requirements-test.txt
-    - pytest -v --cov
+    - pytest -v
   when:
     event:
       - push
