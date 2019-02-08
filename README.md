@@ -1,6 +1,7 @@
 # heavenbot - a Python IRC bot built using irc3
 
 [![Build Status](https://cloud.drone.io/api/badges/pawroman/heavenbot/status.svg)](https://cloud.drone.io/pawroman/heavenbot)
+[![codecov](https://codecov.io/gh/pawroman/heavenbot/branch/master/graph/badge.svg)](https://codecov.io/gh/pawroman/heavenbot)
 
 Current features:
 
