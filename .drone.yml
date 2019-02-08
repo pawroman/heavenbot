@@ -20,7 +20,7 @@ steps:
   image: plugins/codecov
   settings:
     token:
-      from-secret: codecov-token
+      from_secret: codecov-token
     files:
      - coverage.xml
 
