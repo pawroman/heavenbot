@@ -1,19 +1,26 @@
+import datetime
 import math
-from datetime import timedelta
 
-import delorean
+from datetime import timedelta
+from typing import Optional, Tuple, Union
+
+import holidays
+import pendulum
 from tzlocal import get_localzone
 
 
 PROGRESSBAR_BAR_EMPTY = "-"
-PROGRESSBAR_BAR_HALF  = "="
-PROGRESSBAR_BAR_FULL  = "#"
+PROGRESSBAR_BAR_HALF = "="
+PROGRESSBAR_BAR_FULL = "#"
 
-PROGRESSBAR_FORMAT    = "[{bars}]"
+PROGRESSBAR_FORMAT = "[{bars}]"
 
 
-def get_weekend_progress(now=None, tzname="Europe/Warsaw",
-                         weekend_start_hour=17, weekend_end_hour=9):
+def get_weekend_progress(
+    now: Optional[datetime.datetime] = None,
+    tz="Europe/Warsaw",
+    weekend_start_hour=17, weekend_end_hour=9
+) -> Tuple[float, str, pendulum.Period]:
     """
     Get the current week progress in respect to weekend start and end times.
 
@@ -45,75 +52,103 @@ def get_weekend_progress(now=None, tzname="Europe/Warsaw",
     # TODO: support holidays
     # TODO better weekend calculations + configurability
 
-    if not tzname:
-        tzname = str(get_localzone())
+    if not tz:
+        tz = get_localzone()
 
-    now     = delorean.Delorean(datetime=now, timezone=tzname)
+    if now:
+        now = pendulum.datetime(year=now.year, month=now.month, day=now.day,
+                                hour=now.hour, minute=now.minute, second=now.second,
+                                microsecond=now.microsecond, tz=tz)
+    else:
+        now = pendulum.now(tz=tz)
 
-    now_dt  = now.datetime
-    weekday = now_dt.isoweekday()
+    weekday = now.isoweekday()
 
     if weekday == 1:
-        weekend   = now_dt < (now.midnight + timedelta(hours=weekend_end_hour))
-        end_day   = now
-        start_day = now.last_friday() if weekend else now.next_friday()
+        weekend = now < (now.start_of("day") + timedelta(hours=weekend_end_hour))
+        end_day = now
+        start_day = now.previous(pendulum.FRIDAY) if weekend else now.next(pendulum.FRIDAY)
     elif weekday == 5:
-        weekend   = now_dt >= (now.midnight + timedelta(hours=weekend_start_hour))
-        end_day   = now.next_monday() if weekend else now.last_monday()
+        weekend = now >= (now.start_of("day") + timedelta(hours=weekend_start_hour))
+        end_day = now.next(pendulum.MONDAY) if weekend else now.previous(pendulum.MONDAY)
         start_day = now
     elif 1 < weekday < 5:
-        weekend   = False
-        end_day   = now.last_monday()
-        start_day = now.next_friday()
+        weekend = False
+        end_day = now.previous(pendulum.MONDAY)
+        start_day = now.next(pendulum.FRIDAY)
     else:
-        weekend   = True
-        end_day   = now.next_monday()
-        start_day = now.last_friday()
+        weekend = True
+        end_day = now.next(pendulum.MONDAY)
+        start_day = now.previous(pendulum.FRIDAY)
 
-    end      = end_day.midnight   + timedelta(hours=weekend_end_hour)
-    start    = start_day.midnight + timedelta(hours=weekend_start_hour)
-    duration = start - end
+    end = end_day.start_of("day") + timedelta(hours=weekend_end_hour)
+    start = start_day.start_of("day") + timedelta(hours=weekend_start_hour)
 
-    if not weekend:
-        progress = now_dt - end
-        remaining_duration = start - now_dt
+    if weekend:
+        progress = end - now
+        remaining_duration = end - now
+        period: pendulum.Period = end - start
     else:
-        progress = end - now_dt
-        remaining_duration = end - now_dt
+        progress = now - end
+        remaining_duration = start - now
+        period: pendulum.Period = start - end
 
-    progress_ratio = progress.total_seconds() / duration.total_seconds()
+    progress_ratio = progress.total_seconds() / period.total_seconds()
 
-    return progress_ratio, remaining_duration, duration
+    if weekend:
+        progress_ratio *= -1.0
+
+    return progress_ratio, remaining_duration.in_words(), period
 
 
-def make_progressbar(value, bars=10):
+def make_progressbar(value: float, bars: int = 10,
+                     full_char: str = PROGRESSBAR_BAR_FULL,
+                     half_char: str = PROGRESSBAR_BAR_HALF,
+                     empty_char: str = PROGRESSBAR_BAR_EMPTY) -> str:
     """
     Make a simple ASCII progressbar for a value between 0.0 and 1.0, inclusive.
 
     bars: The number of progressbar "bars" / blocks (positive int).
     """
     if not 0.0 <= value <= 1.0:
-        raise ValueError("Invalid progressbar value: {}".format(value))
+        raise ValueError(f"Invalid progressbar value: {value}")
 
     if not bars > 0:
-        raise ValueError("Invalid bars number: {}".format(bars))
+        raise ValueError(f"Invalid number of bars: {bars}")
 
-    # HACK when multiplied * 100, has fewer rounding errors
-    percent    = value * 100
+    percent = value * 100.0
+    bar_step = 100.0 / bars
 
-    bar_step   = 100.0 / bars
-    ratio      = percent / bar_step
+    ratio = percent / bar_step
 
-    full_bars  = math.floor(ratio)
-    half_bar   = (percent / bar_step) - full_bars >= 0.5
+    full_bars = math.floor(ratio)
+    half_bar = (percent / bar_step) - full_bars >= 0.5
     empty_bars = bars - full_bars - half_bar
 
     bars_str = (
         # "str" * 2 -> "strstr"
         # "str" * 0 -> ""
-        PROGRESSBAR_BAR_FULL    * full_bars
-        + PROGRESSBAR_BAR_HALF  * half_bar
-        + PROGRESSBAR_BAR_EMPTY * empty_bars
+        full_char * full_bars
+        + half_char * half_bar
+        + empty_char * empty_bars
     )
 
     return PROGRESSBAR_FORMAT.format(bars=bars_str)
+
+
+def get_next_non_weekend_holiday(now: Union[datetime.datetime, datetime.date],
+                                 country_code: str) -> Tuple[datetime.date, str]:
+    this_year = now.year
+    today = now.date() if isinstance(now, datetime.datetime) else now
+
+    country_holidays = getattr(holidays, country_code)
+    hols = country_holidays(years=[this_year, this_year + 1]).items()
+
+    next_date, next_name = next(
+        (date, name)
+        for date, name in hols
+        # holidays are iterated in sorted order (by date)
+        if date >= today and date.isoweekday() not in (6, 7)
+    )
+
+    return next_date, next_name

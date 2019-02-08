@@ -5,13 +5,18 @@ from collections import defaultdict
 import logging
 import re
 
+import pendulum
+
 from irc3.plugins.command import command
 from irc3.plugins.cron import cron
 from irc3.utils import IrcString
 
 import irc3
 
-from .utils import get_weekend_progress, make_progressbar
+from .utils import (
+    get_weekend_progress, make_progressbar,
+    get_next_non_weekend_holiday,
+)
 
 
 @irc3.plugin
@@ -197,6 +202,37 @@ class WeekendPlugin:
         else:
             yield ("{} remaining until weekend... {:.2f}% {}"
                    .format(duration, abs(progress) * 100, make_progressbar(progress, 20)))
+
+    @command(permission="view", name="holiday", public=True)
+    def holiday_cmd(self, mask, target, args):
+        """
+        Show the upcoming non-weekend holidays
+        for all countries in config.
+
+            %%holiday
+        """
+        country_codes = self.config.get("holiday_countries")
+
+        if not country_codes:
+            return
+
+        now = pendulum.now(tz=self.config.get("default_timezone"))
+
+        for country_code in country_codes.split(","):
+            date, name = get_next_non_weekend_holiday(now, country_code)
+
+            remaining_days = (
+                pendulum.date(date.year, date.month, date.day)
+                - now
+            ).in_days()
+
+            plural = "" if remaining_days == 1 else "s"
+
+            yield (
+                f"Next holiday for {country_code}:"
+                f" {date.isoformat()} ({name}"
+                f", in {remaining_days} day{plural})"
+            )
 
     # TODO better cron / periodic updates (+ config)
 

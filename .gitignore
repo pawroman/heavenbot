@@ -1,6 +1,12 @@
 *.py[co]
 __pycache__
+
 .env*
 .idea/*
-venv
+venv/
 
+.coverage
+htmlcov/
+.pytest_cache
+
+src/config.ini

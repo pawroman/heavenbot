@@ -1,0 +1,14 @@
+kind: pipeline
+name: default
+
+steps:
+- name: test
+  image: python:3.7
+  commands:
+  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
+  - pytest -v --cov
+  when:
+    event:
+    - push
+    - pull_request

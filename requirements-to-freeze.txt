@@ -1,4 +1,5 @@
-irc3
-delorean
-tzlocal
 aiocron
+holidays
+irc3
+pendulum
+tzlocal
