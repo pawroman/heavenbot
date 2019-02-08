@@ -1,14 +1,60 @@
 kind: pipeline
-name: default
+name: test-on-amd64
+
+platform:
+  arch: amd64
 
 steps:
 - name: test
   image: python:3.7
   commands:
-  - pip install -r requirements.txt
-  - pip install -r requirements-test.txt
-  - pytest -v --cov
+    - "echo arch: $(uname -m)"
+    - pip install -r requirements.txt
+    - pip install -r requirements-test.txt
+    - pytest -v --cov
   when:
     event:
-    - push
-    - pull_request
+      - push
+      - pull_request
+
+---
+
+kind: pipeline
+name: test-on-arm
+
+platform:
+  arch: arm
+
+steps:
+- name: test
+  image: python:3.7
+  commands:
+    - "echo arch: $(uname -m)"
+    - pip install -r requirements.txt
+    - pip install -r requirements-test.txt
+    - pytest -v --cov
+  when:
+    event:
+      - push
+      - pull_request
+
+---
+
+kind: pipeline
+name: test-on-arm64
+
+platform:
+  arch: arm64
+
+steps:
+- name: test
+  image: python:3.7
+  commands:
+    - "echo arch: $(uname -m)"
+    - pip install -r requirements.txt
+    - pip install -r requirements-test.txt
+    - pytest -v --cov
+  when:
+    event:
+      - push
+      - pull_request
