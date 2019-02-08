@@ -4,11 +4,11 @@
 
 Current features:
 
-* weekend plugin - shows progress towards the weekend in channel topic
-* holiday plugin - shows upcoming holidays
+* weekend command - shows progress towards the weekend in channel topic
+* holiday command - shows upcoming holidays
 
-To run, you need to create a config file first. Refer to a sample one in `src/sample-config.ini`
-for details.
+To run, you need to create a config file first. Refer to a sample one in
+`src/sample-config.ini` for details.
 
 * `pip install -r requirements.txt`
 * `irc3 path/to/yourconfig.ini`
@@ -35,6 +35,19 @@ In short:
 
 * keep the "top-level" requirements unversioned in `requirements-to-freeze.txt`
 
+## Testing
+
+First, install the test requirements:
+
+```
+$ pip install -r requirements-test.txt 
+```
+
+Then, run `pytest`:
+
+```
+$ pytest
+```
 
 ## License
 

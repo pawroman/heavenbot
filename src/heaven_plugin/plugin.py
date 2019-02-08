@@ -29,7 +29,7 @@ class WeekendPlugin:
 
     def __init__(self, context):
         self.context = context
-        self.config = self.context.config["weekend_plugin"]
+        self.config = self.context.config["heaven_plugin"]
 
         # registry of +o modes {"channel": True/False, ...}
         self.ops = defaultdict(bool)

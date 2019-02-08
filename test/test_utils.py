@@ -3,7 +3,7 @@ from datetime import date, datetime
 import pendulum
 from pytest import approx, fixture, raises
 
-from src.weekend_plugin.utils import (
+from src.heaven_plugin.utils import (
     get_weekend_progress, make_progressbar,
     get_next_non_weekend_holiday,
 )
