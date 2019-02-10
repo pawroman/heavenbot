@@ -28,7 +28,11 @@ steps:
   settings:
     username: heavenbot
     repo: heavenbot/heavenbot
-    tags: latest,amd64,latest-linux-amd64,linux-amd64
+    tags:
+      - latest
+      - amd64
+      - latest-linux-amd64
+      - linux-amd64
     password:
       from_secret: dockerhub-password
 
@@ -78,7 +82,10 @@ steps:
   settings:
     username: heavenbot
     repo: heavenbot/heavenbot
-    tags: arm,latest-linux-arm,linux-arm
+    tags:
+      - arm
+      - latest-linux-arm
+      - linux-arm
     password:
       from_secret: dockerhub-password
 
@@ -107,6 +114,9 @@ steps:
   settings:
     username: heavenbot
     repo: heavenbot/heavenbot
-    tags: arm64,latest-linux-arm64,linux-arm64
+    tags:
+      - arm64
+      - latest-linux-arm64
+      - linux-arm64
     password:
       from_secret: dockerhub-password
