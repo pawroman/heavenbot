@@ -2,7 +2,7 @@ kind: pipeline
 name: test-on-amd64
 
 platform:
-  arch: amd64
+  arch: amd64-python37
 
 steps:
 - name: test
@@ -23,11 +23,18 @@ steps:
       from_secret: codecov-token
     files:
      - coverage.xml
+- name: build docker image
+  image: plugins/docker
+  settings:
+    username: heavenbot
+    repo: heavenbot/heavenbot
+    password:
+      from_secret: dockerhub-password
 
 ---
 
 kind: pipeline
-name: test-on-amd64-python36
+name: amd64-python36
 
 platform:
   arch: amd64
@@ -48,7 +55,7 @@ steps:
 ---
 
 kind: pipeline
-name: test-on-arm
+name: arm
 
 platform:
   arch: arm
@@ -65,11 +72,18 @@ steps:
     event:
       - push
       - pull_request
+- name: build docker image
+  image: plugins/docker
+  settings:
+    username: heavenbot
+    repo: heavenbot/heavenbot
+    password:
+      from_secret: dockerhub-password
 
 ---
 
 kind: pipeline
-name: test-on-arm64
+name: arm64
 
 platform:
   arch: arm64
@@ -86,3 +100,10 @@ steps:
     event:
       - push
       - pull_request
+- name: build docker image
+  image: plugins/docker
+  settings:
+    username: heavenbot
+    repo: heavenbot/heavenbot
+    password:
+      from_secret: dockerhub-password
