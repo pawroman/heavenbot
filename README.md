@@ -23,7 +23,7 @@ https://irc3.readthedocs.io/en/latest/
 
 Using Docker is the simplest way to run the bot.
 
-The images are available for x86_64 and ARM.
+The images are available for x86_64 (`amd64`) and ARM.
 Find them here: https://hub.docker.com/r/heavenbot/heavenbot
 
 The Docker image uses volume `/heavenbot/data`
@@ -63,6 +63,8 @@ $ docker run \
     heavenbot/heavenbot
 ```
 
+Note that if `config.ini` doesn't exist, it will error out.
+
 To run in background, use the `-d` flag:
 
 ```bash
@@ -71,7 +73,14 @@ $ docker run -d \
     heavenbot/heavenbot
 ```
 
-Note that if `config.ini` doesn't exist, it will error out.
+Architectures other than `amd64` are currently supported
+by tags. E.g. to run on Raspberry Pi, use `arm` tag:
+
+```bash
+$ docker run -d \ 
+    -v /abs-path-to/heavenbot-data:/heavenbot/data \
+    heavenbot/heavenbot:arm
+```
 
 ### No Docker
 
