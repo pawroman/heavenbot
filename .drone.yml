@@ -1,8 +1,8 @@
 kind: pipeline
-name: test-on-amd64
+name: amd64-python37
 
 platform:
-  arch: amd64-python37
+  arch: amd64
 
 steps:
 - name: test
