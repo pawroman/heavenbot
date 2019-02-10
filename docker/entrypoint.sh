@@ -11,7 +11,6 @@ set +x
 CONFIG_FILE_EXISTS=true
 
 if ! [ -f "$CONFIG_FILE" ]; then
-    echo "Doesn't exist"
     CONFIG_FILE_EXISTS=false
 fi
 
@@ -26,8 +25,10 @@ if [ "$#" -eq 1 ] && [ "$1" == "generate-config" ]; then
     fi
 fi
 
-if [ "$#" -eq 0 ] && [ "$CONFIG_FILE_EXISTS" = false ]; then
-    echo "Cannot access config file at: '$CONFIG_FILE'. Abort."
+if [ "$1" == "irc3" ] && [ "$CONFIG_FILE_EXISTS" = false ]; then
+    echo "Cannot access config file at: '$CONFIG_FILE'."
+    echo "Hint: you can generate one using 'generate-config', e.g. 'docker run heavenbot generate-config'."
+    echo "Abort."
     exit 2
 fi
 
