@@ -39,6 +39,7 @@ steps:
     - "echo arch: $(uname -m)"
     - pip install -r requirements.txt
     - pip install -r requirements-test.txt
+    - pytest -v
   when:
     event:
       - push
