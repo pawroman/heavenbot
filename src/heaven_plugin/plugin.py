@@ -65,6 +65,8 @@ class WeekendPlugin:
         """
         self.ops[channel] = False
 
+        self.log.info(f"Joined #{channel}")
+
     @irc3.event(irc3.rfc.MODE)
     def on_mode_changed(self, target=None, modes=None, data=None, **kwargs):
         """
@@ -92,7 +94,7 @@ class WeekendPlugin:
             self.log.info("Got OP on {}".format(target))
 
             if self.config.get("enable_cheer_for_op"):
-                return self.cheer_for_op(target)
+                self.cheer_for_op(target)
 
             self.set_weekend_topic(target, self.context.channels[target].topic)
 
@@ -187,7 +189,7 @@ class WeekendPlugin:
                 "Get a '+o' on {} first to use the !topic command.".format(target)
             )
 
-    @command(permission="view", name="weekend", public=False)
+    @command(permission="view", name="weekend", public=True)
     def weekend_cmd(self, mask, target, args):
         """
             %%weekend [<options>...]

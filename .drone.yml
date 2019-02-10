@@ -27,6 +27,26 @@ steps:
 ---
 
 kind: pipeline
+name: test-on-amd64-python36
+
+platform:
+  arch: amd64
+
+steps:
+- name: test
+  image: python:3.6
+  commands:
+    - "echo arch: $(uname -m)"
+    - pip install -r requirements.txt
+    - pip install -r requirements-test.txt
+  when:
+    event:
+      - push
+      - pull_request
+
+---
+
+kind: pipeline
 name: test-on-arm
 
 platform:

@@ -56,9 +56,8 @@ def get_weekend_progress(
         tz = get_localzone()
 
     if now:
-        now = pendulum.datetime(year=now.year, month=now.month, day=now.day,
-                                hour=now.hour, minute=now.minute, second=now.second,
-                                microsecond=now.microsecond, tz=tz)
+        # don't perform TZ conversion, just set it as is
+        now = pendulum.instance(now).set(tz=tz)
     else:
         now = pendulum.now(tz=tz)
 
